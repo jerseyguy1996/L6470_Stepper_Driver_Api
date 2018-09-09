@@ -14,21 +14,20 @@ if the Red Line is ON please immidiatelly switch off the Motor Power Supply othe
 
 
 
+\
+#include "dSpin.h"
 
-#include <SPI.h>    // include the SPI library:
-#include "cL6470.h"
 
- 
 
 String cmd = "";
 
-cL6470 L6470(11,12,10,13,5,6); //cL6470(MOSI, MISO, CS, CLK, BUSY , RESET ); 
+dSpin L6470(11,12,10,13,4,6); //cL6470(MOSI, MISO, CS, CLK, BUSY , RESET ); 
 
 void setup() 
 {
  L6470.init();
 //  // Standard serial port initialization for debugging.
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.setTimeout(50);
   delay(500); 
   if (L6470._GetParam(x_CONFIG) == 0x2E88) 

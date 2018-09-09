@@ -1,14 +1,14 @@
 /*
- * cL6470.cpp
+ * dSpin.cpp
  *
  * Created: 6/22/2016 8:41:00 PM
  *  Author: Atif
  */ 
-#include "cL6470.h"
+#include "dSpin.h"
 
 
 
-cL6470::cL6470(int MOSI,int MISO,int CS,int CLK,int BUSY,int RESET) 
+dSpin::dSpin(int MOSI,int MISO,int CS,int CLK,int BUSY,int RESET) 
 			{
 				_Set_MISO(MISO);
 				_Set_MOSI(MOSI);
@@ -20,7 +20,7 @@ cL6470::cL6470(int MOSI,int MISO,int CS,int CLK,int BUSY,int RESET)
 			}
 			
 
-void cL6470::init()
+void dSpin::init()
 		{
 		pinMode(_CS, OUTPUT);
 		digitalWrite(_CS, HIGH);
@@ -43,14 +43,14 @@ void cL6470::init()
 		SPI.setDataMode(SPI_MODE3);
 		}
 
-void cL6470::_SetParam(byte param, unsigned long value)
+void dSpin::_SetParam(byte param, unsigned long value)
 {
 	_Data_To_Transfer(x_SET_PARAM | param);
 	_ParamHandler(param, value);
 }
 
 
-unsigned long cL6470::_GetParam(byte param)
+unsigned long dSpin::_GetParam(byte param)
 	{
 	_Data_To_Transfer(x_GET_PARAM | param);
 	return _ParamHandler(param, 0);
@@ -58,7 +58,7 @@ unsigned long cL6470::_GetParam(byte param)
 
 // Enable or disable the low-speed optimization option. If enabling,
 //  the other 12 bits of
-void cL6470::_SetLSPDOpt(boolean enable)
+void dSpin::_SetLSPDOpt(boolean enable)
 {
 	_Data_To_Transfer(x_SET_PARAM | x_MIN_SPEED);
 	if (enable) _Param(0x1000, 13);
@@ -71,7 +71,7 @@ void cL6470::_SetLSPDOpt(boolean enable)
 //  will switch the device into full-step mode.
 // The SpdCalc() function is provided to convert steps/s values into
 //  appropriate integer values for this function.
-void cL6470::_Run(byte dir, unsigned long spd)
+void dSpin::_Run(byte dir, unsigned long spd)
 {
 	_Data_To_Transfer(x_RUN | dir);
 	if (spd > 0xFFFFF) spd = 0xFFFFF;
@@ -85,7 +85,7 @@ void cL6470::_Run(byte dir, unsigned long spd)
 //  the direction (set by the FWD and REV constants) imposed by the call
 //  of this function. Motion commands (RUN, MOVE, etc) will cause the device
 //  to exit step clocking mode.
-void cL6470::_Step_Clock(byte dir)
+void dSpin::_Step_Clock(byte dir)
 {
 	_Data_To_Transfer(x_STEP_CLOCK | dir);
 }
@@ -94,7 +94,7 @@ void cL6470::_Step_Clock(byte dir)
 //  direction imposed by dir (FWD or REV constants may be used). The motor
 //  will accelerate according the acceleration and deceleration curves, and
 //  will run at MAX_SPEED. Stepping mode will adhere to FS_SPD value, as well.
-void cL6470::_Move(byte dir, unsigned long n_step)
+void dSpin::_Move(byte dir, unsigned long n_step)
 {
 	_Data_To_Transfer(x_MOVE | dir);
 	if (n_step > 0x3FFFFF) n_step = 0x3FFFFF;
@@ -106,7 +106,7 @@ void cL6470::_Move(byte dir, unsigned long n_step)
 // GOTO operates much like MOVE, except it produces absolute motion instead
 //  of relative motion. The motor will be moved to the indicated position
 //  in the shortest possible fashion.
-void cL6470::_GoTo(unsigned long pos)
+void dSpin::_GoTo(unsigned long pos)
 {
 	
 	_Data_To_Transfer(x_GOTO);
@@ -117,7 +117,7 @@ void cL6470::_GoTo(unsigned long pos)
 }
 
 // Same as GOTO, but with user constrained rotational direction.
-void cL6470::_GoTo_DIR(byte dir, unsigned long pos)
+void dSpin::_GoTo_DIR(byte dir, unsigned long pos)
 {
 	
 	_Data_To_Transfer(x_GOTO_DIR);
@@ -133,7 +133,7 @@ void cL6470::_GoTo_DIR(byte dir, unsigned long pos)
 //  performed at the falling edge, and depending on the value of
 //  act (either RESET or COPY) the value in the ABS_POS register is
 //  either RESET to 0 or COPY-ed into the MARK register.
-void cL6470::_GoUntil(byte act, byte dir, unsigned long spd)
+void dSpin::_GoUntil(byte act, byte dir, unsigned long spd)
 {
 	_Data_To_Transfer(x_GO_UNTIL | act | dir);
 	if (spd > 0x3FFFFF) spd = 0x3FFFFF;
@@ -149,7 +149,7 @@ void cL6470::_GoUntil(byte act, byte dir, unsigned long spd)
 //  and the ABS_POS register is either COPY-ed into MARK or RESET to
 //  0, depending on whether RESET or COPY was passed to the function
 //  for act.
-void cL6470::_ReleaseSW(byte act, byte dir)
+void dSpin::_ReleaseSW(byte act, byte dir)
 {
 	_Data_To_Transfer(x_RELEASE_SW | act | dir);
 }
@@ -157,7 +157,7 @@ void cL6470::_ReleaseSW(byte act, byte dir)
 // GoHome is equivalent to GoTo(0), but requires less time to send.
 //  Note that no direction is provided; motion occurs through shortest
 //  path. If a direction is required, use GoTo_DIR().
-void cL6470::_GoHome()
+void dSpin::_GoHome()
 {
 	_Data_To_Transfer(x_GO_HOME);
 }
@@ -165,45 +165,45 @@ void cL6470::_GoHome()
 // GoMark is equivalent to GoTo(MARK), but requires less time to send.
 //  Note that no direction is provided; motion occurs through shortest
 //  path. If a direction is required, use GoTo_DIR().
-void cL6470::_GoMark()
+void dSpin::_GoMark()
 {
 	_Data_To_Transfer(x_GO_MARK);
 }
 
 // Sets the ABS_POS register to 0, effectively declaring the current
 //  position to be "HOME".
-void cL6470::_ResetPos()
+void dSpin::_ResetPos()
 {
 	_Data_To_Transfer(x_RESET_POS);
 }
 
 // Reset device to power up conditions. Equivalent to toggling the STBY
 //  pin or cycling power.
-void cL6470::_ResetDev()
+void dSpin::_ResetDev()
 {
 	_Data_To_Transfer(x_RESET_DEVICE);
 }
 
 // Bring the motor to a halt using the deceleration curve.
-void cL6470::_SoftStop()
+void dSpin::_SoftStop()
 {
 	_Data_To_Transfer(x_SOFT_STOP);
 }
 
 // Stop the motor with infinite deceleration.
-void cL6470::_HardStop()
+void dSpin::_HardStop()
 {
 	_Data_To_Transfer(x_HARD_STOP);
 }
 
 // Decelerate the motor and put the bridges in Hi-Z state.
-void cL6470::_SoftHiZ()
+void dSpin::_SoftHiZ()
 {
 	_Data_To_Transfer(x_SOFT_HIZ);
 }
 
 // Put the bridges in Hi-Z state immediately with no deceleration.
-void cL6470::_HardHiZ()
+void dSpin::_HardHiZ()
 {
 	_Data_To_Transfer(x_HARD_HIZ);
 }
@@ -211,7 +211,7 @@ void cL6470::_HardHiZ()
 // Fetch and return the 16-bit value in the STATUS register. Resets
 //  any warning flags and exits any error states. Using GetParam()
 //  to read STATUS does not clear these values.
-int cL6470::_GetStatus()
+int dSpin::_GetStatus()
 {
 	int temp = 0;
 	_Data_To_Transfer(x_GET_STATUS);
@@ -223,7 +223,7 @@ int cL6470::_GetStatus()
 
 
 
-unsigned long cL6470::_AccCalc(float stepsPerSecPerSec)
+unsigned long dSpin::_AccCalc(float stepsPerSecPerSec)
 {
 	float temp = stepsPerSecPerSec * 0.137438;
 	if( (unsigned long) long(temp) > 0x00000FFF) return 0x00000FFF;
@@ -232,7 +232,7 @@ unsigned long cL6470::_AccCalc(float stepsPerSecPerSec)
 
 // The calculation for DEC is the same as for ACC. Value is 0x08A on boot.
 // This is a 12-bit value, so we need to make sure the value is at or below 0xFFF.
-unsigned long cL6470::_DecCalc(float stepsPerSecPerSec)
+unsigned long dSpin::_DecCalc(float stepsPerSecPerSec)
 {
 	float temp = stepsPerSecPerSec * 0.137438;
 	if( (unsigned long) long(temp) > 0x00000FFF) return 0x00000FFF;
@@ -243,7 +243,7 @@ unsigned long cL6470::_DecCalc(float stepsPerSecPerSec)
 //  250ns (datasheet value)- 0x041 on boot.
 // Multiply desired steps/s by .065536 to get an appropriate value for this register
 // This is a 10-bit value, so we need to make sure it remains at or below 0x3FF
-unsigned long cL6470::_MaxSpdCalc(float stepsPerSec)
+unsigned long dSpin::_MaxSpdCalc(float stepsPerSec)
 {
 	float temp = stepsPerSec * .065536;
 	if( (unsigned long) long(temp) > 0x000003FF) return 0x000003FF;
@@ -254,7 +254,7 @@ unsigned long cL6470::_MaxSpdCalc(float stepsPerSec)
 //  250ns (datasheet value)- 0x000 on boot.
 // Multiply desired steps/s by 4.1943 to get an appropriate value for this register
 // This is a 12-bit value, so we need to make sure the value is at or below 0xFFF.
-unsigned long cL6470::_MinSpdCalc(float stepsPerSec)
+unsigned long dSpin::_MinSpdCalc(float stepsPerSec)
 {
 	float temp = stepsPerSec * 4.1943;
 	if( (unsigned long) long(temp) > 0x00000FFF) return 0x00000FFF;
@@ -265,7 +265,7 @@ unsigned long cL6470::_MinSpdCalc(float stepsPerSec)
 //  250ns (datasheet value)- 0x027 on boot.
 // Multiply desired steps/s by .065536 and subtract .5 to get an appropriate value for this register
 // This is a 10-bit value, so we need to make sure the value is at or below 0x3FF.
-unsigned long cL6470::_FSCalc(float stepsPerSec)
+unsigned long dSpin::_FSCalc(float stepsPerSec)
 {
 	float temp = (stepsPerSec * .065536)-.5;
 	if( (unsigned long) long(temp) > 0x000003FF) return 0x000003FF;
@@ -276,7 +276,7 @@ unsigned long cL6470::_FSCalc(float stepsPerSec)
 //  250ns (datasheet value)- 0x408 on boot.
 // Multiply desired steps/s by 4.1943 to get an appropriate value for this register
 // This is a 14-bit value, so we need to make sure the value is at or below 0x3FFF.
-unsigned long cL6470::_IntSpdCalc(float stepsPerSec)
+unsigned long dSpin::_IntSpdCalc(float stepsPerSec)
 {
 	float temp = stepsPerSec * 4.1943;
 	if( (unsigned long) long(temp) > 0x00003FFF) return 0x00003FFF;
@@ -287,7 +287,7 @@ unsigned long cL6470::_IntSpdCalc(float stepsPerSec)
 //  250ns (datasheet value).
 // Multiply desired steps/s by 67.106 to get an appropriate value for this register
 // This is a 20-bit value, so we need to make sure the value is at or below 0xFFFFF.
-unsigned long cL6470::_SpdCalc(float stepsPerSec)
+unsigned long dSpin::_SpdCalc(float stepsPerSec)
 {
 	float temp = stepsPerSec * 67.106;
 	if( (unsigned long) long(temp) > 0x000FFFFF) return 0x000FFFFF;
@@ -301,7 +301,7 @@ unsigned long cL6470::_SpdCalc(float stepsPerSec)
 //  SPI. Unusually for SPI devices, the x requires a toggling of the
 //  CS (slaveSelect) pin after each byte sent. That makes this function
 //  a bit more reasonable, because we can include more functionality in it.
-byte cL6470::_Data_To_Transfer(byte data)
+byte dSpin::_Data_To_Transfer(byte data)
 {
 	byte data_out;
 	digitalWrite(_CS,LOW);
@@ -317,7 +317,7 @@ byte cL6470::_Data_To_Transfer(byte data)
 //  information about low-speed optimization.// Much of the functionality between "get parameter" and "set parameter" is
 //  very similar, so we deal with that by putting all of it in one function
 //  here to save memory space and simplify the program.
-unsigned long cL6470::_ParamHandler(byte param, unsigned long value)
+unsigned long dSpin::_ParamHandler(byte param, unsigned long value)
 {
 	unsigned long ret_val = 0;   // This is a temp for the value to return.
 	// This switch structure handles the appropriate action for each register.
@@ -482,7 +482,7 @@ unsigned long cL6470::_ParamHandler(byte param, unsigned long value)
 // Generalization of the subsections of the register read/write functionality.
 //  We want the end user to just write the value without worrying about length,
 //  so we pass a bit length parameter from the calling function.
-unsigned long cL6470::_Param(unsigned long value, byte bit_len)
+unsigned long dSpin::_Param(unsigned long value, byte bit_len)
 {
 	unsigned long ret_val=0;        // We'll return this to generalize this function
 	//  for both read and write of registers.
@@ -550,66 +550,66 @@ unsigned long cL6470::_Param(unsigned long value, byte bit_len)
 
 
 			
-void cL6470::_Set_MOSI(int MOSI)
+void dSpin::_Set_MOSI(int MOSI)
 
 			{
 				_MOSI = MOSI;
 			}
 			
-void cL6470::_Set_MISO(int MISO)
+void dSpin::_Set_MISO(int MISO)
 
 			{
 				_MISO = MISO;
 			}
 			
-void cL6470::_Set_CS(int CS)
+void dSpin::_Set_CS(int CS)
 
 			{
 				_CS = CS;
 			}
 
-void cL6470::_Set_CLK(int CLK)
+void dSpin::_Set_CLK(int CLK)
 
 			{
 				_CLK = CLK;
 			}
 
-void cL6470::_Set_BUSY(int BUSY)
+void dSpin::_Set_BUSY(int BUSY)
 
 			{
 				_BUSY = BUSY;
 			}
 
-void cL6470::_Set_RESET(int RESET)
+void dSpin::_Set_RESET(int RESET)
 
 			{
 				_RESET = RESET;
 			}
 
-int cL6470::_Get_MOSI()
+int dSpin::_Get_MOSI()
 			{
 			return _MOSI;
 			}				
 			
-int cL6470::_Get_MISO()
+int dSpin::_Get_MISO()
 			{
 	return _MISO;
 			}
 
-int cL6470::_Get_CS()
+int dSpin::_Get_CS()
 			{
 	return _CS;
 			}
-int cL6470::_Get_CLK()
+int dSpin::_Get_CLK()
 			{
 	return _CLK;
 			}
 			
-int cL6470::_Get_BUSY()
+int dSpin::_Get_BUSY()
 			{
 	return _BUSY;
 			}			
-int cL6470::_Get_RESET()
+int dSpin::_Get_RESET()
 			{
 	return _RESET;
 			}
